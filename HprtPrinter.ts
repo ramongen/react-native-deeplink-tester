@@ -22,10 +22,6 @@ type AndroidPermission =
   (typeof PermissionsAndroid.PERMISSIONS)[keyof typeof PermissionsAndroid.PERMISSIONS];
 
 type HprtPrinterNativeModule = {
-  connectBluetooth(address: string): Promise<boolean>;
-  disconnect(): Promise<void>;
-  isConnected(): Promise<boolean>;
-  getBluetoothDevices(): Promise<BluetoothDeviceInfo[]>;
   printQrWithText(macAddress: string, qrContent: string, extraText: string): Promise<void>;
   savePrinterMac(address: string): Promise<void>;
   getSavedPrinterMac(): Promise<string | null>;
