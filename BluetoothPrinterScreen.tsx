@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {
   BluetoothDeviceInfo,
+  connectPrinter,
   ensureBluetoothPermissions,
   getSavedPrinterMac,
   listBluetoothDevices,
@@ -48,15 +49,22 @@ const BluetoothPrinterScreen: React.FC = () => {
     loadDevices();
   }, [loadDevices, loadSavedMac]);
 
-  const handleSelect = useCallback(async (device: BluetoothDeviceInfo) => {
-    try {
-      await savePrinterMac(device.address);
-      setSavedMac(device.address);
-      Alert.alert('Printer Saved', `${device.name ?? 'Printer'} selected.`);
-    } catch (error: any) {
-      Alert.alert('Error', String(error?.message ?? error));
-    }
-  }, []);
+  const handleSelect = useCallback(
+    async (device: BluetoothDeviceInfo) => {
+      try {
+        setLoading(true);
+        await connectPrinter(device.address);
+        await savePrinterMac(device.address);
+        setSavedMac(device.address);
+        Alert.alert('Printer Connected', `${device.name ?? 'Printer'} saved and ready.`);
+      } catch (error: any) {
+        Alert.alert('Connection Error', String(error?.message ?? error));
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: BluetoothDeviceInfo }) => {
@@ -78,6 +86,7 @@ const BluetoothPrinterScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Available Bluetooth Printers</Text>
+      <Text style={styles.helper}>Pull to refresh if your printer does not appear immediately.</Text>
       <FlatList
         data={devices}
         keyExtractor={(item) => item.address}
@@ -101,6 +110,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
+    marginBottom: 12,
+  },
+  helper: {
+    fontSize: 13,
+    color: '#6B7280',
     marginBottom: 12,
   },
   deviceItem: {
