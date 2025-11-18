@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Button, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import BluetoothPrinterScreen from './BluetoothPrinterScreen';
 import { printQrCode } from './HprtPrinter';
 
@@ -22,21 +22,26 @@ const PrintQrExample: React.FC = () => {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>HPRT Bluetooth Printer</Text>
-      <Text style={styles.description}>
-        Select a paired Bluetooth printer below, then press “Print Sample QR” to send a test QR
-        code and message.
-      </Text>
-      <BluetoothPrinterScreen />
-      <View style={styles.buttonContainer}>
-        <Button title={printing ? 'Printing…' : 'Print Sample QR'} onPress={handlePrint} disabled={printing} />
-      </View>
-    </ScrollView>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.heading}>HPRT Bluetooth Printer</Text>
+        <Text style={styles.description}>
+          Select a paired Bluetooth printer below, then press “Print Sample QR” to send a test QR code and message.
+        </Text>
+        <BluetoothPrinterScreen />
+        <View style={styles.buttonContainer}>
+          <Button title={printing ? 'Printing…' : 'Print Sample QR'} onPress={handlePrint} disabled={printing} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     padding: 16,
     backgroundColor: '#FFFFFF',

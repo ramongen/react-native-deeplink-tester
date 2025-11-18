@@ -24,8 +24,6 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
         reactContext.getSharedPreferences("hprt_printer", Context.MODE_PRIVATE)
     }
 
-    private var connectedAddress: String? = null
-
     override fun getName(): String = "HprtPrinter"
 
     @ReactMethod
@@ -33,7 +31,6 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
         try {
             val result = HPRTPrinterHelper.PortOpen(reactContext, "Bluetooth", address)
             if (result == 0) {
-                connectedAddress = address
                 saveMac(address)
                 promise.resolve(true)
             } else {
@@ -48,7 +45,6 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
     fun disconnect(promise: Promise) {
         try {
             HPRTPrinterHelper.PortClose()
-            connectedAddress = null
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("E_DISCONNECT", e)
@@ -61,7 +57,7 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
             val connected = try {
                 HPRTPrinterHelper.IsOpened()
             } catch (ignored: NoSuchMethodError) {
-                connectedAddress != null
+                false
             }
             promise.resolve(connected)
         } catch (e: Exception) {
@@ -109,10 +105,6 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
     @ReactMethod
     fun printQrWithText(macAddress: String, qrContent: String, extraText: String, promise: Promise) {
         try {
-            if (!ensureConnection(macAddress)) {
-                promise.reject("E_CONNECT", "Unable to connect to printer: $macAddress")
-                return
-            }
             saveMac(macAddress)
             HPRTPrinterHelper.printAreaSize("100", "200")
             HPRTPrinterHelper.CLS()
@@ -147,29 +139,6 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
     private fun getBluetoothAdapter(context: Context): BluetoothAdapter? {
         val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
         return manager?.adapter ?: BluetoothAdapter.getDefaultAdapter()
-    }
-
-    private fun ensureConnection(macAddress: String): Boolean {
-        return try {
-            val isOpened = try {
-                HPRTPrinterHelper.IsOpened()
-            } catch (ignored: NoSuchMethodError) {
-                connectedAddress != null
-            }
-            if (isOpened && connectedAddress.equals(macAddress, ignoreCase = true)) {
-                true
-            } else {
-                val result = HPRTPrinterHelper.PortOpen(reactContext, "Bluetooth", macAddress)
-                if (result == 0) {
-                    connectedAddress = macAddress
-                    true
-                } else {
-                    false
-                }
-            }
-        } catch (e: Exception) {
-            false
-        }
     }
 
     private fun saveMac(address: String) {
