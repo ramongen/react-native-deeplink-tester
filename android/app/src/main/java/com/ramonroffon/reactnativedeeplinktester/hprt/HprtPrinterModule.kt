@@ -75,7 +75,7 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
         }
         val application = reactContext.applicationContext as? Application
         if (application != null) {
-            tryInvokeHelper("init", listOf(arrayOf(application)))
+            tryInvokeHelper("init", listOf(args(application)))
         }
         helperInitialized = true
     }
@@ -84,43 +84,43 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
         requireInvokeHelper(
             "printAreaSize",
             listOf(
-                arrayOf("0", "200", "200", "100", "1"),
-                arrayOf("100", "200"),
-                arrayOf(0, 200, 200, 100, 1),
-                arrayOf(100, 200)
+                args("0", "200", "200", "100", "1"),
+                args("100", "200"),
+                args(0, 200, 200, 100, 1),
+                args(100, 200)
             )
         )
 
         val qrArgsOptions = mutableListOf<Array<Any?>>()
         barcodeConstant?.let {
-            qrArgsOptions.add(arrayOf(it, "0", "0", "2", "6", qrContent))
+            qrArgsOptions.add(args(it, "0", "0", "2", "6", qrContent))
             if (it is Number) {
-                qrArgsOptions.add(arrayOf(it, 0, 0, 2, 6, qrContent))
+                qrArgsOptions.add(args(it, 0, 0, 2, 6, qrContent))
             }
         }
-        qrArgsOptions.add(arrayOf("0", "0", "2", "6", qrContent))
-        qrArgsOptions.add(arrayOf(0, 0, 2, 6, qrContent))
-        qrArgsOptions.add(arrayOf(qrContent))
+        qrArgsOptions.add(args("0", "0", "2", "6", qrContent))
+        qrArgsOptions.add(args(0, 0, 2, 6, qrContent))
+        qrArgsOptions.add(args(qrContent))
 
         requireInvokeHelper("PrintQR", qrArgsOptions)
 
         if (extraText.isNotBlank()) {
-            val textArgs = listOf(arrayOf(extraText), arrayOf(extraText + "\n"))
+            val textArgs = listOf(args(extraText), args(extraText + "\n"))
             val printed = tryInvokeHelper("PrintText", textArgs)
             if (!printed) {
                 Log.w(TAG, "PrinterHelper.PrintText not available in SDK; skipping text content")
             }
         }
 
-        requireInvokeHelper("Form", listOf(emptyArray()))
+        requireInvokeHelper("Form", listOf(emptyArray<Any?>()))
 
         requireInvokeHelper(
             "Print",
             listOf(
-                emptyArray(),
-                arrayOf("1", "1"),
-                arrayOf(1, 1),
-                arrayOf("1")
+                emptyArray<Any?>(),
+                args("1", "1"),
+                args(1, 1),
+                args("1")
             )
         )
     }
@@ -146,9 +146,9 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
 
     private fun openPortIfAvailable(address: String): Boolean {
         val options = listOf(
-            arrayOf(reactContext as Context, "Bluetooth", address),
-            arrayOf("Bluetooth", address),
-            arrayOf(address)
+            args(reactContext as Context, "Bluetooth", address),
+            args("Bluetooth", address),
+            args(address)
         )
         for (args in options) {
             val method = findMethodOrNull("PortOpen", args)
@@ -165,7 +165,7 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
     }
 
     private fun closePortIfAvailable() {
-        val method = findMethodOrNull("PortClose", emptyArray())
+        val method = findMethodOrNull("PortClose", emptyArray<Any?>())
         try {
             method?.invoke(null)
         } catch (e: Exception) {
@@ -228,6 +228,8 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
         }
         return true
     }
+
+    private fun args(vararg values: Any?): Array<Any?> = arrayOf(*values)
 
     private fun wrapPrimitive(clazz: Class<*>): Class<*> {
         return when (clazz) {
