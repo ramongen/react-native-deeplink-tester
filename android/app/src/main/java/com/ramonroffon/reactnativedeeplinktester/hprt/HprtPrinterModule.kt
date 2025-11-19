@@ -9,6 +9,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import java.lang.reflect.Method
 
+import com.cpcl.cpcl.PrinterHelper
+
+
 class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
@@ -32,13 +35,31 @@ class HprtPrinterModule(private val reactContext: ReactApplicationContext) :
     override fun getName(): String = "HprtPrinter"
 
     @ReactMethod
+    fun printQR(
+        macAddress: String,
+        text: String,
+        promise: Promise
+    ) {
+        try {
+            PrinterHelper.portOpenBT(reactContext, macAddress)
+            PrinterHelper.printAreaSize("0", "200", "200", "100", "1")
+            PrinterHelper.PrintQR(PrinterHelper.BARCODE, "0", "0", "2", "6", text)
+            PrinterHelper.Form()
+            PrinterHelper.Print()
+            promise.resolve(1)
+        } catch (e: Exception) {
+            promise.reject("PRINT_QR_ERROR", e.message, e)
+        }
+    }
+
+    @ReactMethod
     fun printQrWithText(macAddress: String, qrContent: String, extraText: String, promise: Promise) {
         try {
             saveMac(macAddress)
             ensureHelperInitialized()
             val opened = openPortIfAvailable(macAddress)
             try {
-                executePrintCommands(qrContent, extraText)
+
                 promise.resolve(null)
             } finally {
                 if (opened) {

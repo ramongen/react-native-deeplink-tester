@@ -189,6 +189,6 @@ export async function printQrCode({
   if (!savedMac) {
     throw new Error('No printer MAC address saved.');
   }
-  await ensurePeripheralConnection(savedMac);
-  await HprtPrinter.printQrWithText(savedMac, qrContent, extraText);
+  // await ensurePeripheralConnection(savedMac);
+  await HprtPrinter.printQR(savedMac, qrContent);
 }

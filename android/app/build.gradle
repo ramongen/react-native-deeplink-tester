@@ -155,8 +155,9 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
-    implementation files('libs/ESC_SDK_V2.00.00.jar')
+    implementation files('libs/CPCL_SDK_V1.13.jar')
     implementation("com.facebook.react:react-android")
+    implementation files('libs\\CPCL_SDK_V1.13.jar')
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
