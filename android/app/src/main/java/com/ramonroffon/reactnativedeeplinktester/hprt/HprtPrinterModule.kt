@@ -9,7 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import java.lang.reflect.Method
 
-import com.cpcl.cpcl.PrinterHelper
+import cpcl.PrinterHelper
 
 
 class HprtPrinterModule(private val reactContext: ReactApplicationContext) :

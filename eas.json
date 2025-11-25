@@ -6,7 +6,11 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "applicationArchivePath": "android/app/build/outputs/apk/debug/app-debug.apk"
+      }
     },
     "preview": {
       "distribution": "internal"
